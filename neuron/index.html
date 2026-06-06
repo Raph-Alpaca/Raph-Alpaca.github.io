@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>신경계 탐구</title>
+<style>
+    body {
+        margin: 0;
+        font-family: "맑은 고딕", sans-serif;
+        background: #eef2f5;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: auto;
+        padding: 15px;
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 2.5em;
+        margin-bottom: 10px;
+    }
+
+    .subtitle {
+        text-align: center;
+        font-size: 1.4em;
+        margin-bottom: 15px;
+        color: #444;
+    }
+
+    .buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    button {
+        font-size: 1.4em;
+        padding: 14px 18px;
+        border-radius: 12px;
+        border: none;
+        background: #5a7d9a;
+        color: white;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #4a6b85;
+    }
+
+    .panel {
+        margin-top: 15px;
+        padding: 18px;
+        background: white;
+        border-radius: 12px;
+        min-height: 90px;
+        font-size: 1.4em;
+        text-align: center;
+    }
+
+    canvas {
+        width: 100%;
+        height: auto;
+        background: #ffffff;
+        border-radius: 12px;
+        margin-top: 15px;
+    }
+
+    .controls {
+        margin-top: 15px;
+        text-align: center;
+        font-size: 1.3em;
+    }
+
+    input[type=range] {
+        width: 90%;
+    }
+
+    @media (max-width: 600px) {
+        h1 { font-size: 2em; }
+        button { font-size: 1.2em; }
+        .panel { font-size: 1.2em; }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>신경계 탐구</h1>
+    <div class="subtitle">버튼을 누르고, 속도를 바꾸며 신호의 이동을 관찰해 보세요</div>
+
+    <div class="buttons">
+        <button onclick="showCNS()">중추 신경계</button>
+        <button onclick="showPNS()">말초 신경계</button>
+        <button onclick="resetAll()">다시 시작</button>
+    </div>
+
+    <div class="panel" id="info">
+        버튼을 눌러 시작하세요.
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="controls">
+        신호 속도 조절<br>
+        <input type="range" min="1" max="5" value="2" id="speedSlider">
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+function resizeCanvas() {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientWidth * 0.4;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+let x = 50;
+let speed = 1;
+let running = true;
+
+document.getElementById("speedSlider").addEventListener("input", function(){
+    speed = parseInt(this.value);
+});
+
+function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    let midY = canvas.height/2;
+
+    // 세포체
+    ctx.beginPath();
+    ctx.arc(80, midY, 25, 0, Math.PI*2);
+    ctx.fillStyle = "#d8cfc4";
+    ctx.fill();
+
+    // 축삭
+    ctx.beginPath();
+    ctx.moveTo(105, midY);
+    ctx.lineTo(canvas.width-50, midY);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "#555";
+    ctx.stroke();
+
+    // 수초
+    for(let i=130; i<canvas.width-80; i+=70){
+        ctx.beginPath();
+        ctx.arc(i, midY, 15, 0, Math.PI*2);
+        ctx.fillStyle = "#b0c4de";
+        ctx.fill();
+    }
+
+    // 신호
+    ctx.beginPath();
+    ctx.arc(x, midY, 8, 0, Math.PI*2);
+    ctx.fillStyle = "#c05050";
+    ctx.fill();
+}
+
+function animate(){
+    if(running){
+        x += speed * 0.5; // 느리게 조정
+        if(x > canvas.width-50){
+            x = 80;
+        }
+    }
+    draw();
+    requestAnimationFrame(animate);
+}
+
+function showCNS(){
+    document.getElementById("info").innerText =
+    "중추 신경계: 뇌와 척수 → 정보를 처리하고 명령을 내림\n\n신호의 시작 위치를 관찰해 보세요.";
+}
+
+function showPNS(){
+    document.getElementById("info").innerText =
+    "말초 신경계: 온몸과 연결 → 자극을 전달\n\n속도를 바꾸면 전달이 어떻게 달라질까요?";
+}
+
+function resetAll(){
+    x = 80;
+    speed = 1;
+    document.getElementById("speedSlider").value = 2;
+    document.getElementById("info").innerText = "다시 시작! 버튼을 눌러 탐구하세요.";
+}
+
+animate();
+</script>
+
+</body>
+</html>
